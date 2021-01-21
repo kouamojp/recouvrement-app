@@ -1,0 +1,9 @@
+.btn-primary, .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+	background-color: #ffc107 !important;
+	border-color: #ffc107 !important;
+}
+
+.page-item.active .page-link {
+	
+	background-color: #ca9700 !important;
+	border-color: #ca9701 !important;
