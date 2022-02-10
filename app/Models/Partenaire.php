@@ -38,6 +38,12 @@ class Partenaire extends Model
     {
         return $this->belongsToMany('App\Models\Debiteur', 'debpart');
     }
+    public function rapport()
+    {
+        return $this->hasOne('App\Models\Rapport');
+    }
+
+    
 
     /*
     |--------------------------------------------------------------------------

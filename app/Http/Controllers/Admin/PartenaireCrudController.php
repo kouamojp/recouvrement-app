@@ -73,6 +73,17 @@ class PartenaireCrudController extends CrudController
          * - CRUD::field('price')->type('number');
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
+        $this->crud->replaceSaveActions(
+            [
+                'name' => 'Enregistrer',
+                'visible' => function($crud) {
+                    return true;
+                },
+                'redirect' => function($crud, $request, $itemId) {
+                    return $crud->route;
+                },
+            ],
+        );
     }
 
     /**

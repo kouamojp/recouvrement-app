@@ -7,3 +7,12 @@
 	
 	background-color: #ca9700 !important;
 	border-color: #ca9701 !important;
+}
+
+.app-header .navbar-brand {
+	color: #000000c2;
+}
+
+.sidebar {
+	background-color: #2d2d2d;
+}

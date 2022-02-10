@@ -34,7 +34,16 @@ class DebiteurCrudController extends CrudController
             'label'     => "Partenaire",
             'name'      => 'partenaires',
             'type'         => 'select',
-            'entity'    => 'partenaire',
+            'entity'    => 'partenaires',
+            'attribute'      => 'nom' 
+
+        ]);
+
+        CRUD::addColumn([
+            'label'     => "Agent de recouvrement",
+            'name'      => 'agent_id',
+            'type'         => 'select',
+            'entity'    => 'agent',
             'attribute'      => 'nom' 
 
         ]);
@@ -67,7 +76,7 @@ class DebiteurCrudController extends CrudController
     {
         CRUD::setValidation(DebiteurRequest::class);
 
-        CRUD::setFromDb(); // fields
+       // CRUD::setFromDb(); // fields
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -76,13 +85,82 @@ class DebiteurCrudController extends CrudController
          */
 
         CRUD::addField([
+            'name' => 'societe_debitrice', 
+            'type' => 'text', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+        CRUD::addField([
+            'name' => 'gerant', 
+            'type' => 'text', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+        CRUD::addField([
+            'name' => 'ville', 
+            'type' => 'text', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+        CRUD::addField([
+            'name' => 'localisation', 
+            'type' => 'text', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+        CRUD::addField([
+            'name' => 'telephone', 
+            'type' => 'text', 
+            'wrapper' => ['class' => 'form-group col-md-12']
+        ]);
+
+        CRUD::addField([
+            'name' => 'email', 
+            'type' => 'email', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+        CRUD::addField([
+            'name' => 'password', 
+            'type' => 'password', 
+            'wrapper' => ['class' => 'form-group col-md-6']
+        ]);
+
+
+        CRUD::addField([
             'label'     => "Partenaire",
             'type'      => 'select2_multiple',
             'name'      => 'partenaires',
             'entity'      => 'partenaires',
-            'attribute'      => 'nom' 
+            'attribute'      => 'nom' ,
+            'wrapper' => ['class' => 'form-group col-md-6']
 
         ]);
+
+        CRUD::addField([
+            'label'     => "Agent de recouvrement",
+            'type'      => 'select2',
+            'name'      => 'agent_id',
+            'entity'      => 'agent',
+            'attribute'      => 'nom' ,
+            'wrapper' => ['class' => 'form-group col-md-6']
+
+        ]);
+
+
+        $this->crud->replaceSaveActions(
+            [
+                'name' => 'Enregistrer',
+                'visible' => function($crud) {
+                    return true;
+                },
+                'redirect' => function($crud, $request, $itemId) {
+                    return $crud->route;
+                },
+            ],
+        );
+
+        
     }
 
     /**

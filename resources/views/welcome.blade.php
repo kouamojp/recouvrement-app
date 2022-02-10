@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Acreance</title>
+    <title>Arcreances</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;600&display=swap" rel="stylesheet">
@@ -12,10 +12,10 @@
     <!-- Styles -->
     <style>
         html, body {
-            background-color: #fff;
+            background-color: #fffff9;
             color: #636b6f;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 200;
+            font-family: 'Merriweather Sans', sans-serif !important;
+            font-weight: 700;
             height: 100vh;
             margin: 0;
         }
@@ -45,56 +45,72 @@
         }
 
         .title {
-            font-size: 84px;
+            font-size: 45px;
         }
 
-        .links > a {
-            color: #636b6f;
-            padding: 0 25px;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: .1rem;
-            text-decoration: none;
-            text-transform: uppercase;
+        .title a {
+            font-family: "Helvetica";
+            font-weight: 900;
+
         }
 
-        .m-b-md {
+        .title img{
+            width: 40%;
+        }
+
+        @media only screen and (max-width: 767px){
+           .title img{
+            width: 100%;
+        }   
+    }
+
+    .links > a {
+        color: #000;
+        padding: 0 35px;
+        font-size: 16px;
+        font-weight: 700;
+        /* letter-spacing: 0.1rem;*/
+        text-decoration: none;
+        text-transform: uppercase;
+
+
+    }
+
+        /*.m-b-md {
             margin-bottom: 30px;
-        }
-    </style>
-</head>
-<body>
-    <div class="flex-center position-ref full-height">
-        @if (Route::has('login'))
-        <div class="top-right links">
-            @auth
-            <a href="{{ url('/home') }}">Home</a>
-            @else
-            <a href="{{ route('login') }}">Login</a>
+            }*/
 
-            @if (Route::has('register'))
-            <a href="{{ route('register') }}">Register</a>
+        </style>
+    </head>
+    <body>
+        <div class="flex-center position-ref full-height">
+            @if (Route::has('login'))
+            <div class="top-right links">
+                @auth
+                <a href="{{ url('/home') }}">Home</a>
+                @else
+                <a href="{{ route('login') }}">Login</a>
+
+                @if (Route::has('register'))
+                <a href="{{ route('register') }}">Register</a>
+                @endif
+                @endauth
+            </div>
             @endif
-            @endauth
-        </div>
-        @endif
 
-        <div class="content">
-            <div class="title m-b-md">
-                Acreance
-            </div>
+            <div class="content">
+                <div class="title">
+                    <div>
+                        <div style="margin-bottom: -1%">
+                            <img src="{{ URL::to('/img/logo-2.png') }}">
+                        </div>
 
-            <div class="links">
-               <!-- <a href="https://laravel.com/docs">Docs</a>
-                <a href="https://laracasts.com">Laracasts</a>
-                <a href="https://laravel-news.com">News</a>
-                <a href="https://blog.laravel.com">Blog</a>
-                <a href="https://nova.laravel.com">Nova</a>
-                <a href="https://forge.laravel.com">Forge</a>-->
-                <a href="#">Debiteur</a>
-                <a href="#">Partenaire</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+                        <div class="links" style="margin-left: -8%">
+
+                            <a href="http://debiteur.arcreances.com/login" target="_blank"> Mes dettes </a>
+                            <a href="http://partenaire.arcreances.com/login" target="_blank"> Mes creances </a>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>

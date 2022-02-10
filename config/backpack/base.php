@@ -24,7 +24,7 @@ return [
     // ----
 
     // Project name. Shown in the window title.
-    'project_name' => ' Acreances',
+    'project_name' => ' Arcreances',
 
     // When clicking on the admin panel's top-left logo/name,
     // where should the user be redirected?
@@ -72,10 +72,10 @@ return [
     // ------
 
     // Menu logo. You can replace this with an <img> tag if you have a logo.
-'project_logo'   => '<b>A</b>creances',
+'project_logo'   => '<b>A</b>rcreances',
 
     // Show / hide breadcrumbs on admin panel pages.
-'breadcrumbs' => true,
+'breadcrumbs' => false,
 
     // Horizontal navbar classes. Helps make the admin panel look similar to your project's design.
 'header_class' => 'app-header navbar navbar-light bg-warning',
@@ -109,7 +109,7 @@ return [
 'developer_name' => 'ARC S.A (Kouamo Jean Pierre)',
 
     // Developer website. Link in footer. Type false if you want to hide it.
-'developer_link' => '#',
+'developer_link' => 'mailto:kouamojp@gmail.com',
 
     // Show powered by Laravel Backpack in the footer? true/false
 'show_powered_by' => false,

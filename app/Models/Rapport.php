@@ -5,7 +5,7 @@ namespace App\Models;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class Debiteur extends Model
+class Rapport extends Model
 {
     use CrudTrait;
 
@@ -15,7 +15,7 @@ class Debiteur extends Model
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'debiteurs';
+    protected $table = 'rapports';
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
@@ -34,17 +34,10 @@ class Debiteur extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function partenaires()
+    public function partenaire()
     {
-        return $this->belongsToMany('App\Models\Partenaire', 'debpart');
+        return $this->belongsTo('App\Models\Partenaire');
     }
-
-
-    public function agent()
-    {
-        return $this->belongsTo('App\Models\Agent');
-    }
-    
 
     /*
     |--------------------------------------------------------------------------
