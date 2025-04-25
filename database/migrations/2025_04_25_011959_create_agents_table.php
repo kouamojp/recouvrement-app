@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDebiteursTable extends Migration
+class CreateAgentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateDebiteursTable extends Migration
      */
     public function up()
     {
-        Schema::create('debiteurs', function (Blueprint $table) {
+        Schema::create('agents', function (Blueprint $table) {
             $table->id();
             $table->string('societe_debitrice');
             $table->string('gerant');
@@ -33,6 +33,6 @@ class CreateDebiteursTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('debiteurs');
+        Schema::dropIfExists('agents');
     }
 }

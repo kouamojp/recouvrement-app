@@ -19,7 +19,15 @@ class Debiteur extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
-    // protected $fillable = [];
+    protected $fillable = [
+        'societe_debitrice',
+        'gerant',
+        'localisation',
+        'ville',
+        'email',
+        'password',
+        'telephone',
+    ];
     // protected $hidden = [];
     // protected $dates = [];
 
