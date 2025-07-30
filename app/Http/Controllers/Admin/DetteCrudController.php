@@ -155,6 +155,29 @@ class DetteCrudController extends CrudController
             'type' => 'number'
         ]);
 
+        $this->crud->addField([
+            'name' => 'script',
+            'type' => 'custom_html',
+            'value' => '<script>
+                function updateSolde() {
+                    let a = parseInt(document.querySelector("[name=montant_reconnu]").value) || 0;
+                    let b = parseInt(document.querySelector("[name=montant_verse]").value) || 0;
+                    document.querySelector("[name=solde]").value = a - b;
+                }
+        
+                document.addEventListener("DOMContentLoaded", function() {
+                    const a = document.querySelector("[name=montant_reconnu]");
+                    const b = document.querySelector("[name=montant_verse]");
+                    if (a && b) {
+                        a.addEventListener("input", updateSolde);
+                        b.addEventListener("input", updateSolde);
+                    }
+                    updateSolde();
+                });
+            </script>'
+        ]);
+        
+
         CRUD::addField([
             'name' => 'solde',
             'type' => 'number'

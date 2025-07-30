@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/debiteurs', 'Api\DebiteurController@index');
+Route::get('/debiteur/{id}', 'Api\DebiteurController@show');
+Route::get('/debiteur/{id}/dettes', 'Api\DebiteurController@showDebts');
+Route::get('/debiteur/{id}/partenaires', 'Api\DebiteurController@showPartenaires');

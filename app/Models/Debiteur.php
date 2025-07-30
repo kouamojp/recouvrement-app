@@ -54,6 +54,12 @@ class Debiteur extends Model
     }
     
 
+    public function dettes()
+    {
+        return $this->hasMany(Dette::class);
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | SCOPES

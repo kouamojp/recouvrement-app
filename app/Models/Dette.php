@@ -23,6 +23,14 @@ class Dette extends Model
     // protected $hidden = [];
     // protected $dates = [];
 
+    protected static function booted()
+    {
+        static::saving(function ($montant) {
+            $montant->solde = (int) $montant->montant_reconnu - (int) $montant->montant_verse;
+        });
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
@@ -38,9 +46,15 @@ class Dette extends Model
     {
         return $this->belongsTo('App\Models\Debiteur');
     }
+    
     public function partenaire()
     {
         return $this->belongsTo('App\Models\Partenaire');
+    }
+
+     public function recu()
+    {
+        return $this->hasMany('App\Models\Recu');
     }
 
     /*

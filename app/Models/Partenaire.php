@@ -43,6 +43,11 @@ class Partenaire extends Model
         return $this->hasOne('App\Models\Rapport');
     }
 
+    public function dettes()
+    {
+        return $this->hasMany(Dette::class);
+    }
+
     
 
     /*
