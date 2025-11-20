@@ -29,12 +29,7 @@ class RapportCrudController extends CrudController
         CRUD::setModel(\App\Models\Rapport::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/rapport');
         CRUD::setEntityNameStrings('rapport', 'rapports');
-        CRUD::addColumn([
-            'label'     => "Partenaire",
-            'type'      => 'select',
-            'name'      => 'partenaire',
-            'attribute'      => 'nom' 
-        ]);
+        // Colonne select commentée pour MongoDB - elle déclenche Doctrine DBAL
 
     }
 
@@ -51,13 +46,13 @@ class RapportCrudController extends CrudController
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
+         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
          */
+        // Colonne select commentée pour MongoDB - elle déclenche Doctrine DBAL
         CRUD::addColumn([
-            'label'     => "Partenaire",
-            'type'      => 'select',
-            'name'      => 'partenaire',
-            'attribute'      => 'nom' 
+            'label'     => "Partenaire ID",
+            'name'      => 'partenaire_id',
+            'type'      => 'text'
         ]);
 
 
@@ -152,10 +147,10 @@ class RapportCrudController extends CrudController
          */
         CRUD::addField([
             'label'     => "Partenaire",
-            'type'      => 'select2',
+            'type'      => 'select2_from_array',
             'name'      => 'partenaire_id',
-            'attribute'      => 'nom' 
-
+            'options'   => \App\Models\Partenaire::all()->pluck('nom', '_id')->toArray(),
+            'allows_null' => false
         ]);
 
         CRUD::addField([ 

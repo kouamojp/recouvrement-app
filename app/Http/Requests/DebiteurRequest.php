@@ -25,15 +25,26 @@ class DebiteurRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'email' => 'required',
+        $rules = [
+            'email' => 'required|email',
             'password' => 'required',
             'societe_debitrice' => 'required',
             'gerant' => 'required',
             'ville' => 'required',
             'telephone' => 'required',
-
         ];
+
+        // Ajouter la validation unique pour la création uniquement
+        if ($this->getMethod() == 'POST') {
+            $rules['email'][] = function ($attribute, $value, $fail) {
+                $exists = \App\Models\Debiteur::where('email', $value)->exists();
+                if ($exists) {
+                    $fail('⚠️ ALERTE DOUBLON : Un débiteur avec cet email existe déjà dans la base de données !');
+                }
+            };
+        }
+
+        return $rules;
     }
 
     /**
@@ -44,7 +55,8 @@ class DebiteurRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'email' => 'adresse email',
+            'societe_debitrice' => 'société débitrice',
         ];
     }
 
@@ -56,7 +68,8 @@ class DebiteurRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'email.required' => 'L\'adresse email est obligatoire.',
+            'email.email' => 'L\'adresse email doit être valide.',
         ];
     }
 }

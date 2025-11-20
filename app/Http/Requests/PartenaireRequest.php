@@ -25,15 +25,27 @@ class PartenaireRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-           'nom' => 'required',
-           'email' => 'required',
-           'password' => 'required',
-           'secteur' => 'required',
-           'ville' => 'required',
-           'telephone' => 'required',
-       ];
-   }
+        $rules = [
+            'nom' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+            'secteur' => 'required',
+            'ville' => 'required',
+            'telephone' => 'required',
+        ];
+
+        // Ajouter la validation unique pour la création uniquement
+        if ($this->getMethod() == 'POST') {
+            $rules['email'][] = function ($attribute, $value, $fail) {
+                $exists = \App\Models\Partenaire::where('email', $value)->exists();
+                if ($exists) {
+                    $fail('⚠️ ALERTE DOUBLON : Un partenaire avec cet email existe déjà dans la base de données !');
+                }
+            };
+        }
+
+        return $rules;
+    }
 
     /**
      * Get the validation attributes that apply to the request.
@@ -43,7 +55,8 @@ class PartenaireRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'email' => 'adresse email',
+            'nom' => 'nom du partenaire',
         ];
     }
 
@@ -55,7 +68,9 @@ class PartenaireRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'email.required' => 'L\'adresse email est obligatoire.',
+            'email.email' => 'L\'adresse email doit être valide.',
+            'nom.required' => 'Le nom du partenaire est obligatoire.',
         ];
     }
 }

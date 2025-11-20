@@ -31,23 +31,7 @@ class DetteCrudController extends CrudController
         CRUD::setModel(\App\Models\Dette::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/dette');
         CRUD::setEntityNameStrings('dette', 'dettes');
-        CRUD::addColumn([
-            'name'      => 'debiteur_id',
-            'label'     => "Débiteur",
-            'type'         => 'select',
-            'entity'    => 'debiteur', 
-            'attribute' => 'societe_debitrice', 
-
-        ]);
-
-        CRUD::addColumn([
-            'label'     => "Partenaire",
-            'name'      => 'partenaire_id',
-            'type'         => 'select',
-            'entity'    => 'partenaire',
-            'attribute'      => 'nom' 
-
-        ]);
+        // Colonnes select commentées pour MongoDB - elles déclenchent Doctrine DBAL
     }
 
     /**
@@ -180,7 +164,12 @@ class DetteCrudController extends CrudController
 
         CRUD::addField([
             'name' => 'solde',
-            'type' => 'number'
+            'type' => 'number',
+            'attributes' => [
+                'readonly' => 'readonly',
+                'style' => 'background-color: #e9ecef; cursor: not-allowed;'
+            ],
+            'hint' => 'Calculé automatiquement : Montant reconnu - Montant versé'
         ]);
 
         CRUD::addField([
@@ -199,17 +188,18 @@ class DetteCrudController extends CrudController
 
         CRUD::addField([
             'label'     => "Débiteur",
-            'type'      => 'select2',
+            'type'      => 'select2_from_array',
             'name'      => 'debiteur_id',
-            'attribute'      => 'societe_debitrice' 
-
+            'options'   => \App\Models\Debiteur::all()->pluck('societe_debitrice', '_id')->toArray(),
+            'allows_null' => false
         ]);
+
         CRUD::addField([
             'label'     => "Partenaire",
-            'type'      => 'select2',
+            'type'      => 'select2_from_array',
             'name'      => 'partenaire_id',
-            'attribute'      => 'nom' 
-
+            'options'   => \App\Models\Partenaire::all()->pluck('nom', '_id')->toArray(),
+            'allows_null' => false
         ]);
 
 

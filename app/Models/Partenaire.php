@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
 
 class Partenaire extends Model
 {
     use CrudTrait;
+
+    protected $connection = 'mongodb';
+
+    // Spécifier l'attribut identifiable pour éviter l'utilisation de Doctrine
+    public function identifiableAttribute()
+    {
+        return 'nom';
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -34,10 +42,12 @@ class Partenaire extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
-    public function debiteurs()
-    {
-        return $this->belongsToMany('App\Models\Debiteur', 'debpart');
-    }
+    // Relation commentée - MongoDB ne supporte pas belongsToMany avec table pivot SQL
+    // Les débiteurs stockent les IDs de partenaires dans leur document
+    // public function debiteurs()
+    // {
+    //     return $this->belongsToMany('App\Models\Debiteur', 'debpart');
+    // }
     public function rapport()
     {
         return $this->hasOne('App\Models\Rapport');

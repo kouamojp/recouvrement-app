@@ -29,30 +29,7 @@ class RecuCrudController extends CrudController
         CRUD::setModel(\App\Models\Recu::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/recu');
         CRUD::setEntityNameStrings('recu', 'recus');
-        CRUD::addColumn([
-            'label'     => "Partenaire",
-            'name'      => 'partenaire',
-            'type'         => 'select',
-            'entity'    => 'partenaire',
-            'attribute'      => 'nom' 
-
-        ]);
-        CRUD::addColumn([
-            'label'     => "Debiteur",
-            'name'      => 'debiteur',
-            'type'         => 'select',
-            'entity'    => 'debiteur',
-            'attribute'      => 'societe_debitrice' 
-
-        ]);
-        CRUD::addColumn([
-            'label'     => "Dette",
-            'name'      => 'dette',
-            'type'         => 'select',
-            'entity'    => 'dette',
-            'attribute'      => 'intitule' 
-
-        ]);
+        // Colonnes select commentées pour MongoDB - elles déclenchent Doctrine DBAL
     }
 
     /**
@@ -63,13 +40,13 @@ class RecuCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb(); // columns
+        // CRUD::setFromDb(); // Commenté pour MongoDB
 
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
+        // Définir manuellement les colonnes pour MongoDB
+        CRUD::addColumn(['name' => 'bordereau', 'type' => 'text', 'label' => 'Bordereau']);
+        CRUD::addColumn(['name' => 'montant', 'type' => 'number', 'label' => 'Montant', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'mode', 'type' => 'text', 'label' => 'Mode de paiement']);
+        CRUD::addColumn(['name' => 'date', 'type' => 'date', 'label' => 'Date']);
     }
 
     /**
@@ -90,10 +67,39 @@ class RecuCrudController extends CrudController
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
 
-        CRUD::addField([ 
-            'name' => 'bordereau', 
-            'type' => 'text'
+        // Script pour générer automatiquement le bordereau
+        CRUD::addField([
+            'name' => 'bordereau_script',
+            'type' => 'custom_html',
+            'value' => '<script>
+                function generateBordereau() {
+                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                    let bordereau = "";
+                    for (let i = 0; i < 14; i++) {
+                        bordereau += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    return bordereau;
+                }
+
+                document.addEventListener("DOMContentLoaded", function() {
+                    const bordereauField = document.querySelector("[name=bordereau]");
+                    if (bordereauField && !bordereauField.value) {
+                        bordereauField.value = generateBordereau();
+                    }
+                });
+            </script>'
         ]);
+
+        CRUD::addField([
+            'name' => 'bordereau',
+            'type' => 'text',
+            'attributes' => [
+                'readonly' => 'readonly',
+                'style' => 'background-color: #e9ecef; cursor: not-allowed;'
+            ],
+            'hint' => 'Généré automatiquement (14 caractères alphanumériques)'
+        ]);
+
         CRUD::addField([
             'name' => 'montant',
             'type' => 'number'
@@ -113,27 +119,26 @@ class RecuCrudController extends CrudController
 
         CRUD::addField([
             'label'     => "Débiteur",
-            'type'      => 'select2',
+            'type'      => 'select2_from_array',
             'name'      => 'debiteur_id',
-            'attribute'      => 'societe_debitrice' 
-
+            'options'   => \App\Models\Debiteur::all()->pluck('societe_debitrice', '_id')->toArray(),
+            'allows_null' => false
         ]);
 
         CRUD::addField([
             'label'     => "Dette",
-            'type'      => 'select2',
+            'type'      => 'select2_from_array',
             'name'      => 'dette_id',
-            'attribute'      => 'intitule' 
-
+            'options'   => \App\Models\Dette::all()->pluck('intitule', '_id')->toArray(),
+            'allows_null' => false
         ]);
 
-
         CRUD::addField([
-            'label'     => "partenaire",
-            'type'      => 'select2',
+            'label'     => "Partenaire",
+            'type'      => 'select2_from_array',
             'name'      => 'partenaire_id',
-            'attribute'      => 'nom' 
-
+            'options'   => \App\Models\Partenaire::all()->pluck('nom', '_id')->toArray(),
+            'allows_null' => false
         ]);
 
 

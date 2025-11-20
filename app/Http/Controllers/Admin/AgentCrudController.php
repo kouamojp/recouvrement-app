@@ -14,7 +14,9 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 class AgentCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitStore;
+    }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
@@ -39,14 +41,13 @@ class AgentCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb(); // columns
+        // CRUD::setFromDb(); // Commenté pour MongoDB
 
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
-
+        // Définir manuellement les colonnes pour MongoDB
+        CRUD::addColumn(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
+        CRUD::addColumn(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
+        CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
     }
 
     /**
@@ -59,13 +60,13 @@ class AgentCrudController extends CrudController
     {
         CRUD::setValidation(AgentRequest::class);
 
-        CRUD::setFromDb(); // fields
+        // CRUD::setFromDb(); // Commenté pour MongoDB
 
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+        // Définir manuellement les champs pour MongoDB
+        CRUD::addField(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
+        CRUD::addField(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
+        CRUD::addField(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addField(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
 
         $this->crud->replaceSaveActions(
             [
@@ -89,5 +90,26 @@ class AgentCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * Intercepter l'erreur de doublon MongoDB
+     */
+    public function store()
+    {
+        try {
+            return $this->traitStore();
+        } catch (\Exception $e) {
+            // Vérifier si c'est une erreur de doublon MongoDB
+            if (strpos($e->getMessage(), 'E11000 duplicate key error') !== false) {
+                if (strpos($e->getMessage(), 'email') !== false) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['email' => '⚠️ ALERTE DOUBLON : Un agent avec cet email existe déjà dans la base de données !']);
+                }
+            }
+            // Si ce n'est pas une erreur de doublon, relancer l'exception
+            throw $e;
+        }
     }
 }

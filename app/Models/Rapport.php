@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
 
 class Rapport extends Model
 {
     use CrudTrait;
+
+    protected $connection = 'mongodb';
+
+    // Spécifier l'attribut identifiable pour éviter l'utilisation de Doctrine
+    public function identifiableAttribute()
+    {
+        return '_id';
+    }
 
     /*
     |--------------------------------------------------------------------------

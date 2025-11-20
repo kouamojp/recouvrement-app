@@ -25,9 +25,24 @@ class AgentRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            // 'name' => 'required|min:5|max:255'
+        $rules = [
+            'nom' => 'required',
+            'prenom' => 'required',
+            'email' => 'required|email',
+            'telephone' => 'required',
         ];
+
+        // Ajouter la validation unique pour la création uniquement
+        if ($this->getMethod() == 'POST') {
+            $rules['email'][] = function ($attribute, $value, $fail) {
+                $exists = \App\Models\Agent::where('email', $value)->exists();
+                if ($exists) {
+                    $fail('⚠️ ALERTE DOUBLON : Un agent avec cet email existe déjà dans la base de données !');
+                }
+            };
+        }
+
+        return $rules;
     }
 
     /**
@@ -38,7 +53,9 @@ class AgentRequest extends FormRequest
     public function attributes()
     {
         return [
-            //
+            'email' => 'adresse email',
+            'nom' => 'nom de l\'agent',
+            'prenom' => 'prénom de l\'agent',
         ];
     }
 
@@ -50,7 +67,10 @@ class AgentRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'email.required' => 'L\'adresse email est obligatoire.',
+            'email.email' => 'L\'adresse email doit être valide.',
+            'nom.required' => 'Le nom de l\'agent est obligatoire.',
+            'prenom.required' => 'Le prénom de l\'agent est obligatoire.',
         ];
     }
 }
