@@ -165,4 +165,74 @@ class RecuCrudController extends CrudController
     {
         $this->setupCreateOperation();
     }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // setFromDb() passe par Doctrine DBAL, dont le driver MongoDB ne dispose
+        // pas : getDoctrineSchemaManager() renvoie null et l'aperçu tombe en
+        // « Call to a member function getSchemaManager() on null ».
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'bordereau', 'type' => 'text', 'label' => 'Bordereau']);
+        CRUD::addColumn(['name' => 'montant', 'type' => 'number', 'label' => 'Montant', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'mode', 'type' => 'text', 'label' => 'Mode de paiement']);
+        CRUD::addColumn(['name' => 'date', 'type' => 'date', 'label' => 'Date']);
+
+        // Les relations Eloquent sont inexploitables ici (identifiants stockés en
+        // chaînes dans le document) : on les résout à la main. `escaped` est
+        // nécessaire, le type closure rend du HTML brut par défaut.
+        CRUD::addColumn([
+            'name' => 'debiteur_id',
+            'label' => 'Débiteur',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->debiteur_id)) {
+                    return '—';
+                }
+
+                $debiteur = \App\Models\Debiteur::find((string) $entry->debiteur_id);
+
+                return $debiteur ? $debiteur->societe_debitrice : '—';
+            },
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'dette_id',
+            'label' => 'Dette',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->dette_id)) {
+                    return '—';
+                }
+
+                $dette = \App\Models\Dette::find((string) $entry->dette_id);
+
+                return $dette ? $dette->intitule : '—';
+            },
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'partenaire_id',
+            'label' => 'Partenaire',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->partenaire_id)) {
+                    return '—';
+                }
+
+                $partenaire = \App\Models\Partenaire::find((string) $entry->partenaire_id);
+
+                return $partenaire ? $partenaire->nom : '—';
+            },
+        ]);
+    }
 }

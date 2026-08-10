@@ -100,6 +100,25 @@ class AgentCrudController extends CrudController
     }
 
     /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // setFromDb() passe par Doctrine DBAL, dont le driver MongoDB ne dispose
+        // pas : getDoctrineSchemaManager() renvoie null et l'aperçu tombe en
+        // « Call to a member function getSchemaManager() on null ».
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
+        CRUD::addColumn(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
+        CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+    }
+
+    /**
      * Intercepter l'erreur de doublon MongoDB
      */
     public function store()

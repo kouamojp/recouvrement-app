@@ -226,4 +226,62 @@ class DetteCrudController extends CrudController
     {
         $this->setupCreateOperation();
     }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // setFromDb() passe par Doctrine DBAL, dont le driver MongoDB ne dispose
+        // pas : getDoctrineSchemaManager() renvoie null et l'aperçu tombe en
+        // « Call to a member function getSchemaManager() on null ».
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'intitule', 'type' => 'text', 'label' => 'Intitulé']);
+
+        // Les relations Eloquent sont inexploitables ici (identifiants stockés en
+        // chaînes dans le document) : on les résout à la main. `escaped` est
+        // nécessaire, le type closure rend du HTML brut par défaut.
+        CRUD::addColumn([
+            'name' => 'debiteur_id',
+            'label' => 'Débiteur',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->debiteur_id)) {
+                    return '—';
+                }
+
+                $debiteur = \App\Models\Debiteur::find((string) $entry->debiteur_id);
+
+                return $debiteur ? $debiteur->societe_debitrice : '—';
+            },
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'partenaire_id',
+            'label' => 'Partenaire',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->partenaire_id)) {
+                    return '—';
+                }
+
+                $partenaire = \App\Models\Partenaire::find((string) $entry->partenaire_id);
+
+                return $partenaire ? $partenaire->nom : '—';
+            },
+        ]);
+
+        CRUD::addColumn(['name' => 'montant_reclame', 'type' => 'number', 'label' => 'M.réclamé', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'montant_reconnu', 'type' => 'number', 'label' => 'M.reconnu', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'montant_verse', 'type' => 'number', 'label' => 'M.versé', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'solde', 'type' => 'number', 'label' => 'Solde', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'dernier_versement', 'type' => 'date', 'label' => 'Date dernier versement']);
+        CRUD::addColumn(['name' => 'date_echeance_mensuelle', 'type' => 'date', 'label' => 'Date échéance mensuelle']);
+    }
 }

@@ -177,6 +177,69 @@ class DebiteurCrudController extends CrudController
     }
 
     /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // Sans cette ligne, ShowOperation::show() appelle setFromDb(), qui
+        // demande à Doctrine DBAL d'introspecter le schéma. Le driver MongoDB
+        // n'expose pas getDoctrineDriver() : getDoctrineSchemaManager() renvoie
+        // null et la page tombe en « Call to a member function
+        // getSchemaManager() on null ». Les colonnes sont donc déclarées à la
+        // main, comme pour l'opération List.
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'societe_debitrice', 'type' => 'text', 'label' => 'Société Débitrice']);
+        CRUD::addColumn(['name' => 'gerant', 'type' => 'text', 'label' => 'Gérant']);
+        CRUD::addColumn(['name' => 'localisation', 'type' => 'text', 'label' => 'Localisation']);
+        CRUD::addColumn(['name' => 'ville', 'type' => 'text', 'label' => 'Ville']);
+        CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+
+        // Les relations sont stockées comme identifiants dans le document, sans
+        // relation Eloquent exploitable ici : on les résout explicitement.
+        // `escaped` est nécessaire, le type closure rend du HTML brut par défaut.
+        CRUD::addColumn([
+            'name' => 'agent_id',
+            'label' => 'Agent de recouvrement',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->agent_id)) {
+                    return '—';
+                }
+
+                $agent = \App\Models\Agent::find((string) $entry->agent_id);
+
+                return $agent ? trim($agent->prenom . ' ' . $agent->nom) : '—';
+            },
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'partenaires',
+            'label' => 'Partenaires',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                $ids = array_filter((array) ($entry->partenaires ?: []));
+
+                if (empty($ids)) {
+                    return '—';
+                }
+
+                $noms = \App\Models\Partenaire::whereIn('_id', array_map('strval', $ids))
+                    ->pluck('nom')
+                    ->all();
+
+                return empty($noms) ? '—' : implode(', ', $noms);
+            },
+        ]);
+    }
+
+    /**
      * Intercepter l'erreur de doublon MongoDB
      */
     public function store()
