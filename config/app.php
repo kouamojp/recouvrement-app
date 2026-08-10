@@ -156,7 +156,9 @@ return [
         Illuminate\Pipeline\PipelineServiceProvider::class,
         Illuminate\Queue\QueueServiceProvider::class,
         Illuminate\Redis\RedisServiceProvider::class,
-        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+        // Remplace Illuminate\Auth\Passwords\PasswordResetServiceProvider :
+        // gere les dates Mongo (UTCDateTime) dans password_resets.
+        Jenssegers\Mongodb\Auth\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
@@ -169,6 +171,7 @@ return [
         /*
          * Application Service Providers...
          */
+        App\Providers\MongoValidationServiceProvider::class,
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
