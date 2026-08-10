@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\RapportRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -18,6 +19,7 @@ class RapportCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -120,12 +122,13 @@ class RapportCrudController extends CrudController
             'type' => 'number'
         ]);
 
-        CRUD::addColumn([ 
+        CRUD::addColumn([
             'label' => 'Appreciation débiteur',
-            'name' => 'commentaire', 
+            'name' => 'commentaire',
             'type' => 'textarea'
         ]);
 
+        $this->activerRechercheMongo();
     }
 
     /**

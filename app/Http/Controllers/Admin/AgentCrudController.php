@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\AgentRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -20,6 +21,7 @@ class AgentCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -48,6 +50,8 @@ class AgentCrudController extends CrudController
         CRUD::addColumn(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
         CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
         CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+
+        $this->activerRechercheMongo();
     }
 
     /**

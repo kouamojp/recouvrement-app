@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\RecuRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -18,6 +19,7 @@ class RecuCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CloneOperation;
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -47,6 +49,8 @@ class RecuCrudController extends CrudController
         CRUD::addColumn(['name' => 'montant', 'type' => 'number', 'label' => 'Montant', 'suffix' => ' FCFA']);
         CRUD::addColumn(['name' => 'mode', 'type' => 'text', 'label' => 'Mode de paiement']);
         CRUD::addColumn(['name' => 'date', 'type' => 'date', 'label' => 'Date']);
+
+        $this->activerRechercheMongo();
     }
 
     /**
