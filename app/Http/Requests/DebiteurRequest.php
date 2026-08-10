@@ -25,17 +25,20 @@ class DebiteurRequest extends FormRequest
      */
     public function rules()
     {
+        $creation = $this->getMethod() == 'POST';
+
         $rules = [
-            'email' => 'required|email',
-            'password' => 'required',
-            'societe_debitrice' => 'required',
-            'gerant' => 'required',
-            'ville' => 'required',
-            'telephone' => 'required',
+            'email' => ['required', 'email'],
+            // À la modification, un mot de passe vide conserve l'existant.
+            'password' => [$creation ? 'required' : 'nullable', 'min:8'],
+            'societe_debitrice' => ['required'],
+            'gerant' => ['required'],
+            'ville' => ['required'],
+            'telephone' => ['required'],
         ];
 
         // Ajouter la validation unique pour la création uniquement
-        if ($this->getMethod() == 'POST') {
+        if ($creation) {
             $rules['email'][] = function ($attribute, $value, $fail) {
                 $exists = \App\Models\Debiteur::where('email', $value)->exists();
                 if ($exists) {

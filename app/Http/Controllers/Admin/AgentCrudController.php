@@ -66,6 +66,13 @@ class AgentCrudController extends CrudController
         CRUD::addField(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
         CRUD::addField(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
         CRUD::addField(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addField([
+            'name'  => 'password',
+            'type'  => 'password',
+            'label' => 'Mot de passe',
+            'value' => '',
+            'hint'  => 'À la modification, laissez vide pour conserver le mot de passe actuel.',
+        ]);
         CRUD::addField(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
 
         $this->crud->replaceSaveActions(

@@ -76,7 +76,13 @@ class PartenaireCrudController extends CrudController
         CRUD::addField(['name' => 'ville', 'type' => 'text', 'label' => 'Ville']);
         CRUD::addField(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
         CRUD::addField(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
-        CRUD::addField(['name' => 'password', 'type' => 'password', 'label' => 'Mot de passe']);
+        CRUD::addField([
+            'name'  => 'password',
+            'type'  => 'password',
+            'label' => 'Mot de passe',
+            'value' => '',
+            'hint'  => 'À la modification, laissez vide pour conserver le mot de passe actuel.',
+        ]);
         CRUD::addField(['name' => 'secteur', 'type' => 'text', 'label' => 'Secteur']);
         
         $this->crud->replaceSaveActions(

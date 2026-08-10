@@ -111,6 +111,8 @@ class DebiteurCrudController extends CrudController
         CRUD::addField([
             'name' => 'password',
             'type' => 'password',
+            'value' => '',
+            'hint' => 'À la modification, laissez vide pour conserver le mot de passe actuel.',
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 

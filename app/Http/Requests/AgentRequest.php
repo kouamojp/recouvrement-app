@@ -25,15 +25,19 @@ class AgentRequest extends FormRequest
      */
     public function rules()
     {
+        $creation = $this->getMethod() == 'POST';
+
         $rules = [
-            'nom' => 'required',
-            'prenom' => 'required',
-            'email' => 'required|email',
-            'telephone' => 'required',
+            'nom' => ['required'],
+            'prenom' => ['required'],
+            'email' => ['required', 'email'],
+            'telephone' => ['required'],
+            // À la modification, un mot de passe vide conserve l'existant.
+            'password' => [$creation ? 'required' : 'nullable', 'min:8'],
         ];
 
         // Ajouter la validation unique pour la création uniquement
-        if ($this->getMethod() == 'POST') {
+        if ($creation) {
             $rules['email'][] = function ($attribute, $value, $fail) {
                 $exists = \App\Models\Agent::where('email', $value)->exists();
                 if ($exists) {
