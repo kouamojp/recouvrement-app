@@ -2,7 +2,7 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\Models\Debiteur;
+use App\Models\Partenaire;
 use Faker\Generator as Faker;
 
 $fr = \Faker\Factory::create('fr_FR');
@@ -15,19 +15,21 @@ $villes = [
     'EDÉA', 'KUMBA', 'DSCHANG',
 ];
 
-/*
-| agent_id et partenaires sont volontairement absents : ce sont des
-| références vers d'autres collections, câblées par DebiteurSeeder à partir
-| des documents réellement créés.
-*/
-$factory->define(Debiteur::class, function (Faker $faker) use ($fr, $empreinte, $villes) {
+$secteurs = [
+    'Finance', 'Banque', 'Assurance', 'Télécommunications', 'BTP',
+    'Agroalimentaire', 'Transport & Logistique', 'Distribution', 'Énergie',
+    'Santé', 'Éducation', 'Immobilier', 'Industrie', 'Hôtellerie',
+    'Import-Export',
+];
+
+$factory->define(Partenaire::class, function (Faker $faker) use ($fr, $empreinte, $villes, $secteurs) {
     return [
-        'societe_debitrice' => mb_strtoupper($fr->company),
-        'gerant' => $fr->name,
+        'nom' => $fr->company,
+        'adresse' => $fr->streetAddress,
         'ville' => $faker->randomElement($villes),
-        'localisation' => $fr->streetAddress,
         'telephone' => '+237 6' . $faker->numerify('########'),
-        'email' => $fr->unique()->safeEmail,
+        'email' => $fr->unique()->companyEmail,
         'password' => $empreinte,
+        'secteur' => $faker->randomElement($secteurs),
     ];
 });
