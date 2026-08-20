@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Montants;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Jenssegers\Mongodb\Eloquent\Model;
 
@@ -33,8 +34,12 @@ class Dette extends Model
 
     protected static function booted()
     {
-        static::saving(function ($montant) {
-            $montant->solde = (int) $montant->montant_reconnu - (int) $montant->montant_verse;
+        static::saving(function ($dette) {
+            // Les montants sont saisis en chaînes, parfois avec des séparateurs
+            // de milliers : un cast (int) lirait « 1 500 000 » comme 1. Le solde
+            // enregistré ici fait foi partout — admin, API, plafond de paiement.
+            $dette->solde = Montants::versEntier($dette->montant_reconnu)
+                - Montants::versEntier($dette->montant_verse);
         });
     }
 

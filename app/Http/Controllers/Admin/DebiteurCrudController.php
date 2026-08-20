@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\DebiteurRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -20,6 +21,7 @@ class DebiteurCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -52,6 +54,8 @@ class DebiteurCrudController extends CrudController
         CRUD::addColumn(['name' => 'ville', 'type' => 'text', 'label' => 'Ville']);
         CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
         CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+
+        $this->activerRechercheMongo();
     }
 
     /**
@@ -111,38 +115,57 @@ class DebiteurCrudController extends CrudController
         CRUD::addField([
             'name' => 'password',
             'type' => 'password',
+            'value' => '',
+            'hint' => 'À la modification, laissez vide pour conserver le mot de passe actuel.',
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
-        // Charger les données pour les selects personnalisés
-        $partenaires = \App\Models\Partenaire::all();
-        $agents = \App\Models\Agent::all();
+        /*
+         * Rattachements aux partenaires et à l'agent.
+         *
+         * `select2_from_array` plutôt que `select`, comme sur l'écran des
+         * dettes : `select` passe par les relations Eloquent et Doctrine, que
+         * le driver MongoDB ne sait pas introspecter. Les options sont donc
+         * construites à la main.
+         *
+         * Le champ reste en revanche un vrai champ Backpack, ce qu'un
+         * `custom_html` embarquant un <select> n'est pas : Backpack n'enregistre
+         * que les entrées de la requête portant le nom d'un champ déclaré. Un
+         * <select name="agent_id"> logé dans un champ nommé `agent_id_select`
+         * était donc silencieusement écarté à l'enregistrement — l'agent choisi
+         * n'était jamais rattaché au débiteur — et la valeur en cours n'était
+         * pas présélectionnée à la modification.
+         */
+        $partenaires = \App\Models\Partenaire::all()
+            ->pluck('nom', '_id')
+            ->map(function ($nom) {
+                return (string) $nom;
+            })
+            ->toArray();
 
-        // Créer le HTML pour le select des partenaires (multiple)
-        $partenairesOptions = '<option value="">-- Sélectionnez un ou plusieurs partenaires --</option>';
-        foreach ($partenaires as $partenaire) {
-            $partenairesOptions .= '<option value="' . $partenaire->_id . '">' . $partenaire->nom . '</option>';
-        }
+        $agents = \App\Models\Agent::all()
+            ->pluck(null, '_id')
+            ->map(function ($agent) {
+                return trim($agent->prenom . ' ' . $agent->nom);
+            })
+            ->toArray();
 
         CRUD::addField([
-            'name' => 'partenaires_select',
+            'name' => 'partenaires',
             'label' => 'Partenaires',
-            'type' => 'custom_html',
-            'value' => '<select name="partenaires[]" class="form-control" multiple style="height: 150px;">' . $partenairesOptions . '</select>',
+            'type' => 'select2_from_array',
+            'options' => $partenaires,
+            'allows_null' => true,
+            'allows_multiple' => true,
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
-        // Créer le HTML pour le select de l'agent
-        $agentsOptions = '<option value="">-- Sélectionnez un agent --</option>';
-        foreach ($agents as $agent) {
-            $agentsOptions .= '<option value="' . $agent->_id . '">' . $agent->nom . '</option>';
-        }
-
         CRUD::addField([
-            'name' => 'agent_id_select',
+            'name' => 'agent_id',
             'label' => 'Agent de recouvrement',
-            'type' => 'custom_html',
-            'value' => '<select name="agent_id" class="form-control">' . $agentsOptions . '</select>',
+            'type' => 'select2_from_array',
+            'options' => $agents,
+            'allows_null' => true,
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
@@ -172,6 +195,69 @@ class DebiteurCrudController extends CrudController
     {
         $this->setupCreateOperation();
 
+    }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // Sans cette ligne, ShowOperation::show() appelle setFromDb(), qui
+        // demande à Doctrine DBAL d'introspecter le schéma. Le driver MongoDB
+        // n'expose pas getDoctrineDriver() : getDoctrineSchemaManager() renvoie
+        // null et la page tombe en « Call to a member function
+        // getSchemaManager() on null ». Les colonnes sont donc déclarées à la
+        // main, comme pour l'opération List.
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'societe_debitrice', 'type' => 'text', 'label' => 'Société Débitrice']);
+        CRUD::addColumn(['name' => 'gerant', 'type' => 'text', 'label' => 'Gérant']);
+        CRUD::addColumn(['name' => 'localisation', 'type' => 'text', 'label' => 'Localisation']);
+        CRUD::addColumn(['name' => 'ville', 'type' => 'text', 'label' => 'Ville']);
+        CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+
+        // Les relations sont stockées comme identifiants dans le document, sans
+        // relation Eloquent exploitable ici : on les résout explicitement.
+        // `escaped` est nécessaire, le type closure rend du HTML brut par défaut.
+        CRUD::addColumn([
+            'name' => 'agent_id',
+            'label' => 'Agent de recouvrement',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->agent_id)) {
+                    return '—';
+                }
+
+                $agent = \App\Models\Agent::find((string) $entry->agent_id);
+
+                return $agent ? trim($agent->prenom . ' ' . $agent->nom) : '—';
+            },
+        ]);
+
+        CRUD::addColumn([
+            'name' => 'partenaires',
+            'label' => 'Partenaires',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                $ids = array_filter((array) ($entry->partenaires ?: []));
+
+                if (empty($ids)) {
+                    return '—';
+                }
+
+                $noms = \App\Models\Partenaire::whereIn('_id', array_map('strval', $ids))
+                    ->pluck('nom')
+                    ->all();
+
+                return empty($noms) ? '—' : implode(', ', $noms);
+            },
+        ]);
     }
 
     /**

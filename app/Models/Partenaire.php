@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Traits\AuthentifiableParJwt;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
-use Jenssegers\Mongodb\Eloquent\Model;
+use Jenssegers\Mongodb\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Partenaire extends Model
+class Partenaire extends Authenticatable implements JWTSubject
 {
     use CrudTrait;
+    use AuthentifiableParJwt;
+
+    /** Valeur du claim `profil` dans le token JWT. */
+    const PROFIL = 'partenaire';
 
     protected $connection = 'mongodb';
 
@@ -28,7 +34,7 @@ class Partenaire extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
-    // protected $hidden = [];
+    protected $hidden = ['password'];
     // protected $dates = [];
 
     /*
@@ -76,5 +82,8 @@ class Partenaire extends Model
     |--------------------------------------------------------------------------
     | MUTATORS
     |--------------------------------------------------------------------------
+    |
+    | Le hachage du mot de passe est fourni par AuthentifiableParJwt.
+    |
     */
 }

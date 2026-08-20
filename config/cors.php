@@ -19,7 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Origines du front-end Angular. Plusieurs valeurs possibles, séparées par
+    // des virgules dans FRONTEND_URLS (dev local, préproduction, production).
+    'allowed_origins' => explode(',', env('FRONTEND_URLS', 'http://localhost:4200')),
 
     'allowed_origins_patterns' => [],
 

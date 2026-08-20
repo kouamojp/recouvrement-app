@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\AgentRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -20,6 +21,7 @@ class AgentCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -48,6 +50,8 @@ class AgentCrudController extends CrudController
         CRUD::addColumn(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
         CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
         CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
+
+        $this->activerRechercheMongo();
     }
 
     /**
@@ -66,6 +70,13 @@ class AgentCrudController extends CrudController
         CRUD::addField(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
         CRUD::addField(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
         CRUD::addField(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addField([
+            'name'  => 'password',
+            'type'  => 'password',
+            'label' => 'Mot de passe',
+            'value' => '',
+            'hint'  => 'À la modification, laissez vide pour conserver le mot de passe actuel.',
+        ]);
         CRUD::addField(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
 
         $this->crud->replaceSaveActions(
@@ -90,6 +101,25 @@ class AgentCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // setFromDb() passe par Doctrine DBAL, dont le driver MongoDB ne dispose
+        // pas : getDoctrineSchemaManager() renvoie null et l'aperçu tombe en
+        // « Call to a member function getSchemaManager() on null ».
+        CRUD::set('show.setFromDb', false);
+
+        CRUD::addColumn(['name' => 'nom', 'type' => 'text', 'label' => 'Nom']);
+        CRUD::addColumn(['name' => 'prenom', 'type' => 'text', 'label' => 'Prénom']);
+        CRUD::addColumn(['name' => 'email', 'type' => 'email', 'label' => 'Email']);
+        CRUD::addColumn(['name' => 'telephone', 'type' => 'text', 'label' => 'Téléphone']);
     }
 
     /**

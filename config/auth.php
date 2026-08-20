@@ -46,6 +46,23 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        // Les trois profils métier du front-end Angular. Chacun a sa propre
+        // collection MongoDB, donc son propre guard et son propre provider.
+        'debiteur' => [
+            'driver' => 'jwt',
+            'provider' => 'debiteurs',
+        ],
+
+        'partenaire' => [
+            'driver' => 'jwt',
+            'provider' => 'partenaires',
+        ],
+
+        'agent' => [
+            'driver' => 'jwt',
+            'provider' => 'agents',
+        ],
     ],
 
     /*
@@ -69,6 +86,21 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\User::class,
+        ],
+
+        'debiteurs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Debiteur::class,
+        ],
+
+        'partenaires' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Partenaire::class,
+        ],
+
+        'agents' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Agent::class,
         ],
 
         // 'users' => [

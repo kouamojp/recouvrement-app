@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Traits\RechercheMongo;
 use App\Http\Requests\RapportRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
@@ -18,6 +19,7 @@ class RapportCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use RechercheMongo;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -120,12 +122,13 @@ class RapportCrudController extends CrudController
             'type' => 'number'
         ]);
 
-        CRUD::addColumn([ 
+        CRUD::addColumn([
             'label' => 'Appreciation débiteur',
-            'name' => 'commentaire', 
+            'name' => 'commentaire',
             'type' => 'textarea'
         ]);
 
+        $this->activerRechercheMongo();
     }
 
     /**
@@ -249,5 +252,51 @@ class RapportCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    /**
+     * Define what happens when the Show operation is loaded.
+     *
+     * @see https://backpackforlaravel.com/docs/crud-operation-show
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        // setFromDb() passe par Doctrine DBAL, dont le driver MongoDB ne dispose
+        // pas : getDoctrineSchemaManager() renvoie null et l'aperçu tombe en
+        // « Call to a member function getSchemaManager() on null ».
+        CRUD::set('show.setFromDb', false);
+
+        // La liste affiche l'identifiant brut du partenaire ; en aperçu on
+        // montre son nom. `escaped` est nécessaire, le type closure rend du
+        // HTML brut par défaut.
+        CRUD::addColumn([
+            'name' => 'partenaire_id',
+            'label' => 'Partenaire',
+            'type' => 'closure',
+            'escaped' => true,
+            'function' => function ($entry) {
+                if (empty($entry->partenaire_id)) {
+                    return '—';
+                }
+
+                $partenaire = \App\Models\Partenaire::find((string) $entry->partenaire_id);
+
+                return $partenaire ? $partenaire->nom : '—';
+            },
+        ]);
+
+        CRUD::addColumn(['name' => 'montant_creance', 'type' => 'number', 'label' => 'M. estimatif créance', 'suffix' => ' FCFA']);
+        CRUD::addColumn(['name' => 'nbre_dossier_transmi', 'type' => 'number', 'label' => 'N.dossiers transmis']);
+        CRUD::addColumn(['name' => 'nbre_dossier_actif', 'type' => 'number', 'label' => 'N.dossiers actifs']);
+        CRUD::addColumn(['name' => 'nbre_dossier_localiser', 'type' => 'number', 'label' => 'N.dossiers localisés']);
+        CRUD::addColumn(['name' => 'nbre_dossier_payement', 'type' => 'number', 'label' => 'N.dossiers en payement']);
+        CRUD::addColumn(['name' => 'entr_physiq', 'type' => 'number', 'label' => 'N.Entretien Physique']);
+        CRUD::addColumn(['name' => 'trans_courier', 'type' => 'number', 'label' => 'N.Transmission courier']);
+        CRUD::addColumn(['name' => 'negoc_en_cours', 'type' => 'number', 'label' => 'Negociation en cours']);
+        CRUD::addColumn(['name' => 'protocol_signe', 'type' => 'number', 'label' => 'Protocol signé']);
+        CRUD::addColumn(['name' => 'echange_tel', 'type' => 'number', 'label' => 'Echange telephonique']);
+        CRUD::addColumn(['name' => 'echange_email', 'type' => 'number', 'label' => 'Echange mail']);
+        CRUD::addColumn(['name' => 'commentaire', 'type' => 'text', 'label' => 'Appreciation débiteur']);
     }
 }

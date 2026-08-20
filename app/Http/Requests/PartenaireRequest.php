@@ -25,17 +25,20 @@ class PartenaireRequest extends FormRequest
      */
     public function rules()
     {
+        $creation = $this->getMethod() == 'POST';
+
         $rules = [
-            'nom' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'secteur' => 'required',
-            'ville' => 'required',
-            'telephone' => 'required',
+            'nom' => ['required'],
+            'email' => ['required', 'email'],
+            // À la modification, un mot de passe vide conserve l'existant.
+            'password' => [$creation ? 'required' : 'nullable', 'min:8'],
+            'secteur' => ['required'],
+            'ville' => ['required'],
+            'telephone' => ['required'],
         ];
 
         // Ajouter la validation unique pour la création uniquement
-        if ($this->getMethod() == 'POST') {
+        if ($creation) {
             $rules['email'][] = function ($attribute, $value, $fail) {
                 $exists = \App\Models\Partenaire::where('email', $value)->exists();
                 if ($exists) {
