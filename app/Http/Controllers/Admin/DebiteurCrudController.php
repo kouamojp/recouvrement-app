@@ -120,35 +120,52 @@ class DebiteurCrudController extends CrudController
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
-        // Charger les données pour les selects personnalisés
-        $partenaires = \App\Models\Partenaire::all();
-        $agents = \App\Models\Agent::all();
+        /*
+         * Rattachements aux partenaires et à l'agent.
+         *
+         * `select2_from_array` plutôt que `select`, comme sur l'écran des
+         * dettes : `select` passe par les relations Eloquent et Doctrine, que
+         * le driver MongoDB ne sait pas introspecter. Les options sont donc
+         * construites à la main.
+         *
+         * Le champ reste en revanche un vrai champ Backpack, ce qu'un
+         * `custom_html` embarquant un <select> n'est pas : Backpack n'enregistre
+         * que les entrées de la requête portant le nom d'un champ déclaré. Un
+         * <select name="agent_id"> logé dans un champ nommé `agent_id_select`
+         * était donc silencieusement écarté à l'enregistrement — l'agent choisi
+         * n'était jamais rattaché au débiteur — et la valeur en cours n'était
+         * pas présélectionnée à la modification.
+         */
+        $partenaires = \App\Models\Partenaire::all()
+            ->pluck('nom', '_id')
+            ->map(function ($nom) {
+                return (string) $nom;
+            })
+            ->toArray();
 
-        // Créer le HTML pour le select des partenaires (multiple)
-        $partenairesOptions = '<option value="">-- Sélectionnez un ou plusieurs partenaires --</option>';
-        foreach ($partenaires as $partenaire) {
-            $partenairesOptions .= '<option value="' . $partenaire->_id . '">' . $partenaire->nom . '</option>';
-        }
+        $agents = \App\Models\Agent::all()
+            ->pluck(null, '_id')
+            ->map(function ($agent) {
+                return trim($agent->prenom . ' ' . $agent->nom);
+            })
+            ->toArray();
 
         CRUD::addField([
-            'name' => 'partenaires_select',
+            'name' => 'partenaires',
             'label' => 'Partenaires',
-            'type' => 'custom_html',
-            'value' => '<select name="partenaires[]" class="form-control" multiple style="height: 150px;">' . $partenairesOptions . '</select>',
+            'type' => 'select2_from_array',
+            'options' => $partenaires,
+            'allows_null' => true,
+            'allows_multiple' => true,
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
-        // Créer le HTML pour le select de l'agent
-        $agentsOptions = '<option value="">-- Sélectionnez un agent --</option>';
-        foreach ($agents as $agent) {
-            $agentsOptions .= '<option value="' . $agent->_id . '">' . $agent->nom . '</option>';
-        }
-
         CRUD::addField([
-            'name' => 'agent_id_select',
+            'name' => 'agent_id',
             'label' => 'Agent de recouvrement',
-            'type' => 'custom_html',
-            'value' => '<select name="agent_id" class="form-control">' . $agentsOptions . '</select>',
+            'type' => 'select2_from_array',
+            'options' => $agents,
+            'allows_null' => true,
             'wrapper' => ['class' => 'form-group col-md-6']
         ]);
 
