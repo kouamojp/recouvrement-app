@@ -7,9 +7,11 @@ use App\Http\Resources\AgentResource;
 use App\Http\Resources\DebiteurResource;
 use App\Http\Resources\DetteResource;
 use App\Http\Resources\PartenaireResource;
+use App\Http\Resources\RecuResource;
 use App\Models\Agent;
 use App\Models\Dette;
 use App\Models\Partenaire;
+use App\Models\Recu;
 use App\Support\Montants;
 
 /**
@@ -83,6 +85,23 @@ class DebiteurController extends Controller
             : null;
 
         return $agent ? new AgentResource($agent) : response()->noContent();
+    }
+
+    /**
+     * GET /api/debiteur/me/recus
+     *
+     * Reçus de versement, du plus récent au plus ancien. Deux origines s'y
+     * mêlent : les règlements encaissés en ligne et ceux saisis à la main dans
+     * le back-office. Le débiteur n'a pas à faire la différence.
+     */
+    public function recus()
+    {
+        $recus = Recu::where('debiteur_id', (string) auth()->user()->_id)
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return RecuResource::collection($recus);
     }
 
     /**

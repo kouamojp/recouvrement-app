@@ -50,6 +50,13 @@ Route::prefix('debiteur/me')->group(function () {
     Route::get('partenaires', 'Api\DebiteurController@partenaires');
     Route::get('agent', 'Api\DebiteurController@agent');
     Route::get('synthese', 'Api\DebiteurController@synthese');
+    Route::get('recus', 'Api\DebiteurController@recus');
+
+    // Règlement en ligne d'une dette.
+    Route::get('paiements', 'Api\PaiementController@index');
+    Route::post('paiements', 'Api\PaiementController@store');
+    Route::get('paiements/{id}', 'Api\PaiementController@show');
+    Route::post('paiements/{id}/annuler', 'Api\PaiementController@annuler');
 });
 
 Route::prefix('partenaire/me')->group(function () {
@@ -66,3 +73,16 @@ Route::prefix('agent/me')->group(function () {
     Route::get('dettes', 'Api\AgentController@dettes');
     Route::get('synthese', 'Api\AgentController@synthese');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Notification serveur à serveur des prestataires de paiement
+|--------------------------------------------------------------------------
+|
+| Publique par nature : le prestataire n'a pas de token. L'appel est
+| authentifié par la relecture du statut à la source, pas par la charge utile
+| reçue, qui sert seulement à repérer la transaction concernée.
+|
+*/
+Route::post('paiements/webhook/{passerelle}', 'Api\PaiementController@webhook')
+    ->name('paiements.webhook');
