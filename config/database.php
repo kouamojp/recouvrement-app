@@ -45,6 +45,13 @@ return [
 
         'mongodb' => [
             'driver' => 'mongodb',
+
+            // Renseigner MONGO_DB_DSN prend le pas sur host/port : c'est la
+            // seule façon d'atteindre un cluster MongoDB Atlas, dont l'URI
+            // mongodb+srv:// porte à la fois les nœuds, les identifiants et le
+            // TLS. Laissé vide, la connexion se fait en local comme avant.
+            'dsn' => env('MONGO_DB_DSN'),
+
             'host' => env('MONGO_DB_HOST', '127.0.0.1'),
             'port' => env('MONGO_DB_PORT', 27017),
             'database' => env('MONGO_DB_DATABASE', 'arc'),

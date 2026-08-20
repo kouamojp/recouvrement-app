@@ -87,6 +87,11 @@ MONGO_DB_PASSWORD=
 > No suitable servers found: [Invalid reply from server. calling hello on '127.0.0.1:3306']
 > ```
 
+## Mise en production
+
+Voir [DEPLOIEMENT.md](DEPLOIEMENT.md) — procédure pour un hébergement cPanel avec
+MongoDB Atlas, prérequis à vérifier auprès de l'hébergeur et pièges connus.
+
 ## Lancer l'application
 
 ```bash
