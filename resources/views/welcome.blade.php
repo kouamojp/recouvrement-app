@@ -61,7 +61,7 @@
         @media only screen and (max-width: 767px){
            .title img{
             width: 100%;
-        }   
+        }
     }
 
     .links > a {
@@ -107,8 +107,8 @@
 
                         <div class="links" style="margin-left: -8%">
 
-                            <a href="http://debiteur.arcreances.com/login" target="_blank"> Mes dettes </a>
-                            <a href="http://partenaire.arcreances.com/login" target="_blank"> Mes creances </a>
+                            <a href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes dettes </a>
+                            <a href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes creances </a>
                         </div>
                     </div>
                 </div>
