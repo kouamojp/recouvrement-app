@@ -273,7 +273,106 @@ alors le signal utile qu'elles doivent etre.
 
 ---
 
-## 7. Dette technique
+## 7. Deployer une mise a jour
+
+La procedure generique de `DEPLOIEMENT.md` (§9, « Deployer une mise a jour ») ne
+s'applique pas telle quelle ici : un `git pull` nu **casse ce serveur**. Trois
+elements de la prod divergent volontairement du depot.
+
+### Ce qui diverge, et pourquoi
+
+| Element | Etat | Traitement |
+|---|---|---|
+| `public/.htaccess` | Porte le bloc handler PHP (§2), absent du depot | `skip-worktree` — ne jamais commiter |
+| `.env` | Specifique a l'environnement | Ignore par git, jamais deploye |
+| Modes de fichiers | 11 `.gitignore` passes en 755 par l'hebergeur | `git config core.fileMode false` |
+
+Le handler est le point sensible : sans `skip-worktree`, le premier `pull` qui
+touche `public/.htaccess` efface la declaration de version, le domaine retombe
+sur le PHP par defaut du serveur, et Laravel 7 ne demarre plus. **A verifier
+avant chaque deploiement** :
+
+```bash
+git ls-files -v | grep '^S' || git update-index --skip-worktree public/.htaccess
+```
+
+### Etat de reference
+
+La prod suit **`main`**. Le travail se fait sur branche, remonte par PR, et la
+prod tire `main` — jamais une branche de fonctionnalite.
+
+### Procedure
+
+L'ordre n'est pas negociable : l'etape 4 verifie que le correctif est arrive
+dans `main` **avant** de jeter quoi que ce soit en local.
+
+```bash
+cd ~/arcreances.proditech-digital.com/recouvrement-app
+
+# 1. Proteger le handler
+git ls-files -v | grep '^S' || git update-index --skip-worktree public/.htaccess
+
+# 2. Neutraliser le bruit de permissions
+git config core.fileMode false
+
+# 3. Recuperer main sans l'appliquer
+git fetch origin main
+
+# 4. GARDE-FOU — ne rien jeter tant que main n'a pas le correctif attendu
+git show origin/main:config/database.php | grep -n "dsn" \
+  || echo ">>> STOP : la PR n'est pas fusionnee"
+
+# 5. Seulement si l'etape 4 a repondu
+git checkout -- config/database.php app/Providers/AppServiceProvider.php
+git merge --ff-only origin/main
+
+# 6. Controler que tout est arrive par git
+grep -n "dsn" config/database.php
+grep -n "error_reporting" app/Providers/AppServiceProvider.php
+head -3 public/.htaccess
+
+# 7. Purger et tester
+/opt/alt/php74/usr/bin/php artisan config:clear
+curl -sI https://arcreances.proditech-digital.com/admin/register | head -3
+
+# 8. Une fois le 200 obtenu, et seulement la
+/opt/alt/php74/usr/bin/php artisan config:cache
+```
+
+Ajouter `composer install --no-dev --optimize-autoloader` et `migrate --force`
+quand `composer.lock` ou les migrations ont bouge.
+
+### Incident du 20 aout 2026
+
+Les etapes ont ete jouees dans le desordre : `git checkout -- config/database.php`
+a ete lance **avant** que la PR ne soit fusionnee. Le fichier est revenu a une
+version sans clef `dsn`, la connexion est retombee sur `127.0.0.1:27017`, et le
+site a repris un 500. Le correctif manuel avait ete detruit sans que le correctif
+versionne n'existe encore dans `main`.
+
+D'ou le garde-fou de l'etape 4. Regle generale : **ne jamais supprimer une
+correction locale avant d'avoir constate que son equivalent est disponible en
+amont.**
+
+### Le cache de configuration
+
+`bootstrap/cache/config.php` fige la configuration : tant qu'il existe, toute
+modification du `.env` ou de `config/` **reste sans effet**. C'est ce qui a
+egare le diagnostic de mise en ligne, a deux reprises.
+
+- Apres toute edition du `.env` ou de `config/` : `artisan config:clear`.
+- Pendant un diagnostic : rester **sans** cache, ne pas relancer `config:cache`.
+- Une fois le site valide : `artisan config:cache` pour la performance.
+
+### Fichiers a ne pas laisser trainer
+
+`config/database.php.bak`, `public/.htaccess.bak`, `error_log`,
+`public/error_log` sont apparus lors de la mise en ligne. Les lire, puis les
+supprimer : `public/error_log` est dans la racine web, donc telechargeable.
+
+---
+
+## 8. Dette technique
 
 **PHP 7.4 n'est plus maintenu depuis novembre 2022** : aucun correctif de
 sécurité n'y est plus appliqué. Le blocage n'est pas `composer.json`, qui accepte

@@ -365,6 +365,11 @@ Les trois `*:cache` sont à rejouer **à chaque** déploiement : tant qu'ils ne 
 sont pas, un `.env` modifié reste sans effet, ce qui est la première cause de
 « j'ai changé la variable et rien n'a bougé ».
 
+> **Cette séquence ne s'applique pas à `arcreances.proditech-digital.com`.** Sur
+> cet hébergement, `public/.htaccess` porte la déclaration de version PHP et un
+> `git pull` nu l'efface, ce qui met le site hors service. La procédure à suivre,
+> avec son garde-fou, est au §7 de **[`PHP-PROD.md`](PHP-PROD.md)**.
+
 ---
 
 ## 10. Récapitulatif des pièges
