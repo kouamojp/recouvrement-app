@@ -14,7 +14,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // Laravel 7 force error_reporting(-1) et convertit toute notice en
+        // ErrorException : une simple depreciation devient donc un 500.
+        // ext-mongodb >= 1.20 deprecie `new UTCDateTime($chaine)`, que
+        // mongodb/laravel-mongodb v3.7 emet a chaque ecriture de date
+        // (Eloquent\Model:92, Query\Builder:933). La bibliotheque n'a pas de
+        // version corrigee compatible Laravel 7 : on neutralise le niveau
+        // E_DEPRECATED plutot que de patcher vendor/, qui serait ecrase au
+        // prochain composer install.
+        error_reporting(error_reporting() & ~E_DEPRECATED & ~E_USER_DEPRECATED);
     }
 
     /**

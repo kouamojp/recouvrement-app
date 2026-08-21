@@ -20,6 +20,12 @@ l'initialisation des logs : l'erreur n'apparaît donc pas dans `storage/logs/` e
 se manifeste parfois sous une forme trompeuse (`Database connection [mysql] not
 configured.`). Voir le README pour le détail.
 
+> **Si `MultiPHP Manager` est absent, ou si le serveur tourne sous LiteSpeed**,
+> cette procédure ne s'applique pas telle quelle : la version se déclare par un
+> handler dans le `.htaccess` de la racine du document. Voir **[`PHP-PROD.md`](PHP-PROD.md)**,
+> qui documente l'environnement réel de `arcreances.proditech-digital.com`
+> (LiteSpeed + CloudLinux, PHP 7.4.33) et le runbook de diagnostic associé.
+
 ### L'extension `mongodb` ≥ 1.18
 
 `Select PHP Version` → onglet `Extensions` → cocher **`mongodb`**.
