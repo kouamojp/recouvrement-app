@@ -14,10 +14,11 @@
         html, body {
             background-color: #fffff9;
             color: #636b6f;
-            font-family: 'Merriweather Sans', sans-serif !important;
+            font-family: 'Open sans', sans-serif ;
             font-weight: 700;
             height: 100vh;
             margin: 0;
+            padding: 0 1rem;
         }
 
         .full-height {
@@ -48,14 +49,15 @@
             font-size: 45px;
         }
 
-        .title a {
-            font-family: "Helvetica";
+        /* .title a {
+            font-family: "DM Sans", sans-serif !important;
             font-weight: 900;
 
-        }
+        } */
 
         .title img{
-            width: 40%;
+            width: 100%;
+            max-width: 50rem;
         }
 
         @media only screen and (max-width: 767px){
@@ -64,16 +66,35 @@
         }
     }
 
-    .links > a {
-        color: #000;
-        padding: 0 35px;
-        font-size: 16px;
-        font-weight: 700;
-        /* letter-spacing: 0.1rem;*/
-        text-decoration: none;
-        text-transform: uppercase;
+    .links{
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
 
 
+        .nav-link {
+            color: #fff;
+            padding: 1rem 2rem;
+            font-size: 18px;
+            font-weight: 600;
+            background-color: #000;
+            text-decoration: none;
+            text-transform: uppercase;
+            border-radius: 5px;
+            width: auto;
+            transition: all 0.3s ease-in-out;
+            @media(max-width: 767px){
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .nav-link:hover {
+            background-color: #fda63a;
+            transition: all 0.3s ease-in-out;
+        }
     }
 
         /*.m-b-md {
@@ -101,14 +122,14 @@
             <div class="content">
                 <div class="title">
                     <div>
-                        <div style="margin-bottom: -1%">
+                        <div class="logo">
                             <img src="{{ URL::to('/img/logo-2.png') }}">
                         </div>
 
-                        <div class="links" style="margin-left: -8%">
+                        <div class="links">
 
-                            <a href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes dettes </a>
-                            <a href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes creances </a>
+                            <a class="nav-link btn" href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes dettes </a>
+                            <a class="nav-link btn" href="http://app-arcreances.proditech-digital.com/" target="_blank"> Mes creances </a>
                         </div>
                     </div>
                 </div>
